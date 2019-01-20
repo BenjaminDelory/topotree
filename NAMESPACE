@@ -1,0 +1,5 @@
+S3method(plot, barcode)
+export(architect, bottleneckdist, qsmToTable, perhomology)
+importFrom(utils, read.table, txtProgressBar, setTxtProgressBar)
+importFrom(graphics, plot, segments)
+importFrom(TDA, bottleneck)
