@@ -7,7 +7,7 @@
 bottleneckdist(x, show.progress=FALSE)
 }
 \arguments{
-  \item{x}{A perhomology object created with the \code{perhomology} function of this package. Mandatory.}
+  \item{x}{A list of persistence barcodes. Mandatory.}
   \item{show.progress}{A logical value. Should a progress bar be shown in the R console? Yes is TRUE, No is FALSE.}
 }
 \details{

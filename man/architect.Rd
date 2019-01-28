@@ -1,17 +1,17 @@
 \name{architect}
 \alias{architect}
 \title{Computing Traits Describing The Global Tree Architecture}
-\description{Calculation of common architectural traits from QSM output files.}
+\description{Calculation of common architectural traits from a QSM output file.}
 \usage{
 architect(inputqsm)}
 \arguments{
   \item{inputqsm}{A qsmToTable object.}
 }
 \value{
-Returns a data frame summarizing all architectural traits calculated for each QSM file located in /\code{inputqsm}. 
+Returns a data frame summarizing all architectural traits calculated for the QSM file located in /\code{inputqsm}. 
 The data frame contains the following columns:
 
-\bold{FileName}: (the name of the QSM files).
+\bold{FileName}: the name of the QSM file.
 
 \bold{TBL}: the total length of branches.
 

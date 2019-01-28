@@ -1,25 +1,18 @@
-qsmToTable<-function(inputqsm){
+qsmToTable<-function(inputqsm, export=NULL){
 
-  if (mode(inputqsm)!="character"){stop("mode(inputqsm) must be character")}
-  
-  #Load QSM files
-  
-  filenames.qsm<-list.files(path=inputqsm, pattern="\\.txt$")
-  path.qsm<-rep(inputqsm, length.out=length(filenames.qsm))
-  filenamesqsm<-sub(x=filenames.qsm, pattern="\\.txt$", replacement="")
-  message(paste("Number of qsm files in inputqsm:", length(filenames.qsm), sep=" "))
-  
-  if (length(filenames.qsm)==0){stop("There is no qsm file in inputqsm")}
-  
-  QSM<-lapply(paste(path.qsm, "/", filenames.qsm, sep=""), read.table, header=TRUE, sep=",")
-  
-  nodes<-0 #nodes is the number of rows (sum rows of each lie)
+  if (mode(inputqsm)!="character"){stop("inputqsm must be a character string")}
+  if (is.null(export)==FALSE){if (mode(export)!="character"){stop("export must be a character string")}}
 
-  for (i in 1:length(QSM)){nodes<-nodes+nrow(QSM[[i]])}
+  #Load QSM file
+  
+  qsm<-read.table(inputqsm, header=TRUE, sep=",", dec=".")
+  
+  name<-sub(x=basename(inputqsm), pattern="\\.txt$", replacement="")
   
   #Construct table (1 line per segment)
   
-  table<-matrix(nrow=nodes, ncol=17)
+  table<-matrix(nrow=nrow(qsm), ncol=17)
+  
   #1 is file
   #2 is branch
   #3 is dbase
@@ -38,16 +31,11 @@ qsmToTable<-function(inputqsm){
   #16 is geodesic
   #17 is parentbranch
   
-  n<-0 #n is the number of qsm files
   s<-0 #Count number of segments added to table
   
-  for (i in 1:length(QSM)){ #For each tree
-    
-      n<-n+1 #Number of qsm files
-      qsm<-QSM[[i]]
-      branch<-0
+  branch<-0
       
-      for (j in 1:nrow(qsm)){
+  for (j in 1:nrow(qsm)){
         
         if (qsm[j,"parent"]==0){}
         
@@ -76,8 +64,8 @@ qsmToTable<-function(inputqsm){
               
               parentbranch<-qsm[qsm[j,"parent"],"branch"]
               
-              dbase<-table[which(table[,11]==qsm[qsm[j,"parent"],"start_1"] & table[,12]==qsm[qsm[j,"parent"],"start_2"] & table[,13]==qsm[qsm[j,"parent"],"start_3"]),15]
-              cumdbase<-dbase+table[which(table[,11]==qsm[qsm[j,"parent"],"start_1"] & table[,12]==qsm[qsm[j,"parent"],"start_2"] & table[,13]==qsm[qsm[j,"parent"],"start_3"]),4]
+              dbase<-table[which(table[,11]==qsm[qsm[j,"parent"],"start_1"] & table[,12]==qsm[qsm[j,"parent"],"start_2"] & table[,13]==qsm[qsm[j,"parent"],"start_3"] & table[,14]!=0), 15]
+              cumdbase<-dbase+table[which(table[,11]==qsm[qsm[j,"parent"],"start_1"] & table[,12]==qsm[qsm[j,"parent"],"start_2"] & table[,13]==qsm[qsm[j,"parent"],"start_3"] & table[,14]!=0),4]
               
               if (length(dbase)==0){
                 dbase<-0
@@ -97,24 +85,95 @@ qsmToTable<-function(inputqsm){
           y2<-qsm[j, "start_2"]
           z2<-qsm[j, "start_3"]
 
-          table[s,1:15]<-c(n, branch, dbase, cumdbase, order, bran, apic, x1, y1, z1, x2, y2, z2, length, cumsum)
+          table[s,1:15]<-c(1, branch, dbase, cumdbase, order, bran, apic, x1, y1, z1, x2, y2, z2, length, cumsum)
           table[s,17]<-parentbranch
-          }}}
+          }}
   
   table[,16]<-table[,4]+table[,15] #geodesic distance
   index<-which(is.na(table[,1])==TRUE)
   table<-table[-index,-c(3,4)] #Remove lines and columns
-
-  rownames(table)<-c(1:nrow(table))
   
   table<-as.data.frame(table)
   colnames(table)<-c("file","branch","order","bran","apic","x1","y1","z1","x2","y2","z2","length","blength","geodesic","parentbranch")
-  table$file<-filenamesqsm[table$file]
+  table$file<-name
   table$bran[table$bran==1]<-"true"
   table$bran[table$bran==0]<-"false"
   table$apic[table$apic==1]<-"true"
   table$apic[table$apic==0]<-"false"
   table<-table[,c(1,2,15,3:14)]
+  
+  #Remove segments with length=0
+  
+  index<-rev(which(table$length==0))
+  
+  if (length(index)>0){
+    
+    for (i in 1:length(index)){
+      
+      if (table$apic[index[i]]=="false" & table$bran[index[i]]=="false" & table$length[index[i]]==0){
+        
+        message(paste("Segment (length=0) removed from branch ", table$branch[index[i]], " in ", table$file[index[i]], sep=""))
+        table<-table[-index[i],]}
+      
+      if (table$apic[index[i]]=="true" & table$bran[index[i]]=="false" & table$length[index[i]]==0){
+        
+        message(paste("Apex segment (length=0) removed from branch ", table$branch[index[i]], " in ", table$file[index[i]], sep=""))
+        table$apic[index[i]-1]<-"true"
+        table<-table[-index[i],]}
+      
+      if (table$apic[index[i]]=="false" & table$bran[index[i]]=="true" & table$length[index[i]]==0){
+        
+        message(paste("Bran segment (length=0) removed from branch ", table$branch[index[i]], " in ", table$file[index[i]], sep=""))
+        table$bran[index[i]+1]<-"true"
+        table<-table[-index[i],]}
+      
+      if (table$apic[index[i]]=="true" & table$bran[index[i]]=="true" & table$length[index[i]]==0){
+        
+        message(paste("Bran/Apex segment (length=0) removed from branch ", table$branch[index[i]], " in ", table$file[index[i]], sep=""))
+        table<-table[-index[i],]}}}
+  
+  rownames(table)<-c(1:nrow(table))
+  
+  #Fuse continuing branches
+  
+  apicindex<-which(table$apic=="true")
+  branindex<-which(table$bran=="true")
+  
+  for (i in 1:length(apicindex)){
+    
+    index<-which(table[branindex, "x1"]==table[apicindex[i], "x2"] & table[branindex, "y1"]==table[apicindex[i], "y2"] & table[branindex, "z1"]==table[apicindex[i], "z2"])
+    
+    if (length(index)>0){ #Extend apical branch
+      
+      table[nrow(table)+1,]<-table[apicindex[i],] #Add new segment
+      table$apic[apicindex[i]]<-"false"
+      table$bran[nrow(table)]<-"false"
+      table$apic[nrow(table)]<-"true"
+      table[nrow(table), c("x1", "y1", "z1")]<-table[apicindex[i], c("x2", "y2", "z2")]
+      x1<-table[apicindex[i], "x1"]
+      y1<-table[apicindex[i], "y1"]
+      z1<-table[apicindex[i], "z1"]
+      x2<-table[apicindex[i], "x2"]
+      y2<-table[apicindex[i], "y2"]
+      z2<-table[apicindex[i], "z2"]
+      K<-((x2-x1)/(z2-z1))^2+((y2-y1)/(z2-z1))^2+1
+      newz<-sqrt(0.001^2/K)+z2
+      newx<-((x2-x1)/(z2-z1))*(newz-z2)+x2
+      newy<-((y2-y1)/(z2-z1))*(newz-z2)+y2
+      length<-sqrt((newx-x2)^2+(newy-y2)^2+(newz-z2)^2)
+      table[nrow(table), c("x2", "y2", "z2")]<-c(newx, newy, newz)
+      table[nrow(table), "length"]<-length
+      table[nrow(table), "blength"]<-table[nrow(table), "blength"]+length
+      table[nrow(table), "geodesic"]<-table[nrow(table), "geodesic"]+length
+      
+      message(paste("Branch ", table$branch[apicindex[i]], " in ", table$file[apicindex[i]]," had to be extended", sep=""))}}
+  
+  table<-table[order(table$branch, table$blength), ]
+  
+  rownames(table)<-c(1:nrow(table))
+  
+  if (is.null(export)==FALSE){
+    write.table(table, file=paste(export, "/", name, "_R.txt", sep=""), col.names = TRUE, row.names = FALSE, sep=",")}
   
 class(table)<-c("data.frame", "qsmToTable")
 return(table)}

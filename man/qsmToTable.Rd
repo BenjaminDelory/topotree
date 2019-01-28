@@ -1,18 +1,19 @@
 \name{qsmToTable}
 \alias{qsmToTable}
-\title{Import QSM Files Into a Single Data Frame}
-\description{Import QSM files located in a folder into a single data frame.  
+\title{Import a QSM File Into a Single Data Frame}
+\description{Import a QSM file located in a folder into a single data frame.  
 }
 \usage{
-qsmToTable(inputqsm)
+qsmToTable(inputqsm, export=NULL)
 }
 \arguments{
-  \item{inputqsm}{A character string specifying the path to the folder containing the QSM files.}
+  \item{inputqsm}{A character string specifying the path to the QSM file.}
+  \item{export}{A character string specifying the path to the folder in which the returned table should be exported.}
 }
 \value{
 Returns a qsmToTable object. Each line of the data frame gives the attributes of one segment. The data frame includes the following columns:
 
-\bold{file}: the name of each QSM file located in \code{inputqsm}.
+\bold{file}: the name of the QSM file located in \code{inputqsm}.
 
 \bold{branch}: the branch identification number.
 
