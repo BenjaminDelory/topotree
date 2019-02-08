@@ -134,7 +134,7 @@ qsmToTable<-function(inputqsm, export=NULL){
   
   rownames(table)<-c(1:nrow(table))
   
-  #Fuse continuing branches
+  #Extend branches when needed
   
   apicindex<-which(table$apic=="true")
   branindex<-which(table$bran=="true")
@@ -156,15 +156,64 @@ qsmToTable<-function(inputqsm, export=NULL){
       x2<-table[apicindex[i], "x2"]
       y2<-table[apicindex[i], "y2"]
       z2<-table[apicindex[i], "z2"]
-      K<-((x2-x1)/(z2-z1))^2+((y2-y1)/(z2-z1))^2+1
-      newz<-sqrt(0.001^2/K)+z2
-      newx<-((x2-x1)/(z2-z1))*(newz-z2)+x2
-      newy<-((y2-y1)/(z2-z1))*(newz-z2)+y2
-      length<-sqrt((newx-x2)^2+(newy-y2)^2+(newz-z2)^2)
-      table[nrow(table), c("x2", "y2", "z2")]<-c(newx, newy, newz)
-      table[nrow(table), "length"]<-length
-      table[nrow(table), "blength"]<-table[nrow(table), "blength"]+length
-      table[nrow(table), "geodesic"]<-table[nrow(table), "geodesic"]+length
+      
+      #Have to consider different scenarios
+      
+      diff<-c(x1-x2, y1-y2, z1-z2)
+      
+      if (sum(diff==0)==0){
+      
+          K<-((x2-x1)/(z2-z1))^2+((y2-y1)/(z2-z1))^2+1
+          newz<-sqrt(0.001^2/K)+z2
+          newx<-((x2-x1)/(z2-z1))*(newz-z2)+x2
+          newy<-((y2-y1)/(z2-z1))*(newz-z2)+y2}
+      
+      if (sum(diff==0)==1){
+        
+        a<-which(diff==0)
+        
+        if (a==1){
+          K<-((z2-z1)/(y2-y1))^2+1
+          newx<-x2
+          newy<-sqrt(0.001^2/K)+y2
+          newz<-((z2-z1)/(y2-y1))*(newy-y2)+z2} 
+        
+        if (a==2){
+          K<-((x2-x1)/(z2-z1))^2+1
+          newy<-y2
+          newz<-sqrt(0.001^2/K)+z2
+          newx<-((x2-x1)/(z2-z1))*(newz-z2)+x2}
+        
+        if (a==3){
+          K<-((x2-x1)/(y2-y1))^2+1
+          newz<-z2
+          newy<-sqrt(0.001^2/K)+y2
+          newx<-((x2-x1)/(y2-y1))*(newy-y2)+x2}}
+      
+      if (sum(diff==0)==2){
+        
+        a<-which(diff!=0)
+        
+        if (a==1){
+          newx<-x2+0.001
+          newy<-y2
+          newz<-z2}
+        
+        if (a==2){
+          newy<-y2+0.001
+          newx<-x2
+          newz<-z2}
+        
+        if (a==3){
+          newz<-z2+0.001
+          newx<-x2
+          newy<-y2}}
+        
+        length<-sqrt((newx-x2)^2+(newy-y2)^2+(newz-z2)^2)
+        table[nrow(table), c("x2", "y2", "z2")]<-c(newx, newy, newz)
+        table[nrow(table), "length"]<-length
+        table[nrow(table), "blength"]<-table[nrow(table), "blength"]+length
+        table[nrow(table), "geodesic"]<-table[nrow(table), "geodesic"]+length
       
       message(paste("Branch ", table$branch[apicindex[i]], " in ", table$file[apicindex[i]]," had to be extended", sep=""))}}
   
