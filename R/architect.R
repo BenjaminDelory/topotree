@@ -62,7 +62,7 @@ architect<-function(inputqsm){
         
         # Results in a dataframe
         
-        if (maxord>1){
+        if (maxord>0){
           
           latbranch<-as.data.frame(latbranch)
           
