@@ -5,9 +5,12 @@ qsmToTable<-function(inputqsm, export=NULL){
 
   #Load QSM file
   
-  qsm<-read.table(inputqsm, header=TRUE, sep=",", dec=".")
+  qsm <- read.table(inputqsm, header=FALSE, sep="\t", dec=".")
+  qsm<-qsm[,1:13] #Select only the first 13 columns
   
-  name<-sub(x=basename(inputqsm), pattern="\\.txt$", replacement="")
+  colnames(qsm) <- c("radius","length","start_1","start_2","start_3","axis_1","axis_2","axis_3","parent","extension","branch","BranchOrder","PositionInBranch")
+  
+  name<-sub(x=basename(inputqsm), pattern="\\_cyl_data.txt$", replacement="")
   
   #Construct table (1 line per segment)
   
