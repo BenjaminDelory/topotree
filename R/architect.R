@@ -21,7 +21,7 @@ architect<-function(inputqsm){
         k<-k+1
         
         #File name
-        dataqsm$FileName[k]<-xt$file[1]
+        dataqsm$FileName[k]<-unique(xt$file)
         
         #TBL (total branch length)
         dataqsm$TBL[k]<-sum(xt$length)
