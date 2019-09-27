@@ -34,7 +34,7 @@ qsmToTable<-function(inputqsm, export=NULL){
   #15 is blength
   #16 is geodesic
   #17 is parentbranch
-  #18 is radius 1
+  #18 is radius
   #19 is volume
   #20 is surface area
   
@@ -54,7 +54,7 @@ qsmToTable<-function(inputqsm, export=NULL){
           order<-qsm[j, "BranchOrder"]
           
           #Length
-          length<-qsm[j, "length"]
+          length<-sqrt((qsm[qsm[j,"parent"], "start_1"]-qsm[j, "start_1"])^2+(qsm[qsm[j,"parent"], "start_2"]-qsm[j, "start_2"])^2+(qsm[qsm[j,"parent"], "start_3"]-qsm[j, "start_3"])^2)
           
           if (qsm[j, "branch"]>branch){
             
@@ -120,7 +120,7 @@ qsmToTable<-function(inputqsm, export=NULL){
   #13 is blength
   #14 is geodesic
   #15 is parentbranch
-  #16 is radius 1
+  #16 is radius
   #17 is volume
   #18 is surface area
   
