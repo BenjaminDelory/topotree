@@ -61,7 +61,7 @@ architect<-function(inputqsm){
           
         widthy<-abs(max(xt$y2)-min(xt$y2))
         widthx<-abs(max(xt$x2)-min(xt$x2))
-        dataqsm$Width[k]<-max(c(widthy, widthx))}
+        dataqsm$Width[k]<-max(c(widthy, widthx))
     
         #Volume
         dataqsm$Volume[k]<-sum(xt$volume)
