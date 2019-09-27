@@ -98,7 +98,7 @@ architect<-function(inputqsm){
           geo<-xt$geodesic[index]
           h<-xt$length[index]
           
-          dataqsm$DBH[k]<-2*((r2-r1)/h)*(1.3-geo+h)+r1}}
+          dataqsm$DBH[k]<-2*(((r2-r1)/h)*(1.3-geo+h)+r1)}}
         
         # Results in a dataframe
         
