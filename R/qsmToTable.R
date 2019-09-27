@@ -8,13 +8,14 @@ qsmToTable<-function(inputqsm, export=NULL){
   qsm <- read.table(inputqsm, header=FALSE, sep="\t", dec=".")
   qsm<-qsm[,1:13] #Select only the first 13 columns
   
-  colnames(qsm) <- c("radius","length","start_1","start_2","start_3","axis_1","axis_2","axis_3","parent","extension","branch","BranchOrder","PositionInBranch")
+  colnames(qsm) <- c("radius","length","start_1","start_2","start_3","axis_1","axis_2","axis_3",
+                     "parent","extension","branch","BranchOrder","PositionInBranch")
   
   name<-sub(x=basename(inputqsm), pattern="\\_cyl_data.txt$", replacement="")
   
   #Construct table (1 line per segment)
   
-  table<-matrix(nrow=nrow(qsm), ncol=21)
+  table<-matrix(nrow=nrow(qsm), ncol=20)
   
   #1 is file
   #2 is branch
@@ -34,9 +35,8 @@ qsmToTable<-function(inputqsm, export=NULL){
   #16 is geodesic
   #17 is parentbranch
   #18 is radius 1
-  #19 is radius 2
-  #20 is volume
-  #21 is surface area
+  #19 is volume
+  #20 is surface area
   
   s<-0 #Count number of segments added to table
   
@@ -54,7 +54,7 @@ qsmToTable<-function(inputqsm, export=NULL){
           order<-qsm[j, "BranchOrder"]
           
           #Length
-          length<-sqrt((qsm[qsm[j,"parent"], "start_1"]-qsm[j, "start_1"])^2+(qsm[qsm[j,"parent"], "start_2"]-qsm[j, "start_2"])^2+(qsm[qsm[j,"parent"], "start_3"]-qsm[j, "start_3"])^2)
+          length<-qsm[j, "length"]
           
           if (qsm[j, "branch"]>branch){
             
@@ -91,15 +91,14 @@ qsmToTable<-function(inputqsm, export=NULL){
           x2<-qsm[j, "start_1"]
           y2<-qsm[j, "start_2"]
           z2<-qsm[j, "start_3"]
-          radius1<-qsm[qsm[j,"parent"], "radius"]
-          radius2<-qsm[j, "radius"]
+          
+          radius<-qsm[j, "radius"]
 
           table[s,1:15]<-c(1, branch, dbase, cumdbase, order, bran, apic, x1, y1, z1, x2, y2, z2, length, cumsum)
           table[s,17]<-parentbranch
-          table[s,18]<-radius1
-          table[s,19]<-radius2
-          table[s,20]<-(1/3)*pi*length*(radius1^2+radius1*radius2+radius2^2)
-          table[s,21]<-pi*(radius1+radius2)*sqrt((radius1-radius2)^2+length^2)
+          table[s,18]<-radius
+          table[s,19]<-pi*(radius^2)*length
+          table[s,20]<-2*pi*radius*length
           }}
   
   table[,16]<-table[,4]+table[,15] #geodesic distance
@@ -122,18 +121,17 @@ qsmToTable<-function(inputqsm, export=NULL){
   #14 is geodesic
   #15 is parentbranch
   #16 is radius 1
-  #17 is radius 2
-  #18 is volume
-  #19 is surface area
+  #17 is volume
+  #18 is surface area
   
   table<-as.data.frame(table)
-  colnames(table)<-c("file","branch","order","bran","apic","x1","y1","z1","x2","y2","z2","length","blength","geodesic","parentbranch","radius1","radius2","volume","surface")
+  colnames(table)<-c("file","branch","order","bran","apic","x1","y1","z1","x2","y2","z2","length","blength","geodesic","parentbranch","radius","volume","surface")
   table$file<-name
   table$bran[table$bran==1]<-"true"
   table$bran[table$bran==0]<-"false"
   table$apic[table$apic==1]<-"true"
   table$apic[table$apic==0]<-"false"
-  table<-table[,c(1,2,15,3:14,16:19)]
+  table<-table[,c(1,2,15,3:14,16:18)]
   
   #Remove segments with length=0
   

@@ -93,12 +93,8 @@ architect<-function(inputqsm){
         else {
           
           index<-index[1]
-          r1<-xt$radius1[index]
-          r2<-xt$radius2[index]
-          geo<-xt$geodesic[index]
-          h<-xt$length[index]
-          
-          dataqsm$DBH[k]<-2*(((r2-r1)/h)*(1.3-geo+h)+r1)}}
+          radius<-xt$radius[index]
+          dataqsm$DBH[k]<-2*radius}}
         
         # Results in a dataframe
         
