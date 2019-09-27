@@ -2,9 +2,9 @@ Package: topotree
 Type: Package
 Title: Topological Analysis of Tree Architectures using Persistent Homology
 Version: 1.0
-Date: 2019-09-11
+Date: 2019-09-27
 Author: Benjamin M Delory
 Maintainer: Benjamin M Delory <Benjamin.Delory@leuphana.de>
 Description: Analyis of tree architectures using persistent homology.
 License: GPL-3
-Imports: utils, graphics, TDA
+Imports: utils, geometry, graphics, TDA

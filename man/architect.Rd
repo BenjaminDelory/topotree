@@ -35,6 +35,14 @@ The data frame contains the following columns:
 
 \bold{Width}: the tree width.
 
+\bold{Convexhull3D}: the volume of the 3D convex hull.
+
+\bold{Volume}: the tree volume.
+
+\bold{Surface}: the tree surface area.
+
+\bold{DBH}: diameter at breast height.
+
 }
 \author{Benjamin M. Delory
 }

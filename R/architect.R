@@ -6,7 +6,10 @@ architect<-function(inputqsm){
   
     n<-length(unique(inputqsm$file))
 
-    dataqsm<-data.frame(FileName=rep(NA, n), TBL=rep(NA, n), L0B=rep(NA, n), TN0B=rep(NA, n), TNLB=rep(NA, n), TLBL=rep(NA, n), D1LB=rep(NA, n), Height=rep(NA, n), Width=rep(NA, n))
+    dataqsm<-data.frame(FileName=rep(NA, n), TBL=rep(NA, n), L0B=rep(NA, n), TN0B=rep(NA, n), 
+                        TNLB=rep(NA, n), TLBL=rep(NA, n), D1LB=rep(NA, n), Height=rep(NA, n), 
+                        Width=rep(NA, n), Convexhull3D=rep(NA, n), Volume=rep(NA, n), 
+                        Surface=rep(NA, n), DBH=rep(NA, n))
     
     if (maxord>0){latbranch<-matrix(ncol=3*maxord, nrow=n)}
     
@@ -59,6 +62,42 @@ architect<-function(inputqsm){
         widthy<-abs(max(xt$y2)-min(xt$y2))
         widthx<-abs(max(xt$x2)-min(xt$x2))
         dataqsm$Width[k]<-max(c(widthy, widthx))}
+    
+        #Volume
+        dataqsm$Volume[k]<-sum(xt$volume)
+        
+        #Surface area
+        dataqsm$Surface[k]<-sum(xt$surface)
+        
+        #Volume of the convex hull
+        
+        x<-c(xt$x1, xt$x2)
+        y<-c(xt$y1, xt$y2)
+        z<-c(xt$z1, xt$z2)
+        root.coords<-unique(cbind(x,y,z))
+        
+        if (nrow(root.coords)>=4){ #Need at least 4 points to construct initial simplex
+          
+          dataqsm$Convexhull3D[k]<-convhulln(as.matrix(root.coords), options=c("QJ", "FA"))$vol}
+        
+        else {
+          
+          dataqsm$Convexhull3D[k]<-0}
+        
+        #DBH
+        
+        index<-which(xt$order==0 & xt$geodesic>1.3)
+        
+        if (length(index)==0){dataqsm$DBH[k]<-NA}
+        
+        else {
+          
+          index<-index[1]
+          r1<-xt$radius1[index]
+          r2<-xt$radius2[index]
+          length<-xt$length[index]
+          
+          dataqsm$DBH[k]<-2*((r2-r1)/length)*1.3+r1}}
         
         # Results in a dataframe
         
@@ -71,6 +110,6 @@ architect<-function(inputqsm){
             colnames(latbranch)[l+maxord]<-paste("L", l, "LB", sep="")
             colnames(latbranch)[l+2*maxord]<-paste("ML", l, "LB", sep="")}
           
-        dataqsm<-data.frame(dataqsm[,1:6], as.data.frame(latbranch), dataqsm[,7:9])}
+        dataqsm<-data.frame(dataqsm[,1:6], as.data.frame(latbranch), dataqsm[,7:13])}
   
   return(dataqsm)}

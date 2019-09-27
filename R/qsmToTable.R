@@ -14,7 +14,7 @@ qsmToTable<-function(inputqsm, export=NULL){
   
   #Construct table (1 line per segment)
   
-  table<-matrix(nrow=nrow(qsm), ncol=17)
+  table<-matrix(nrow=nrow(qsm), ncol=21)
   
   #1 is file
   #2 is branch
@@ -33,6 +33,10 @@ qsmToTable<-function(inputqsm, export=NULL){
   #15 is blength
   #16 is geodesic
   #17 is parentbranch
+  #18 is radius 1
+  #19 is radius 2
+  #20 is volume
+  #21 is surface area
   
   s<-0 #Count number of segments added to table
   
@@ -87,23 +91,49 @@ qsmToTable<-function(inputqsm, export=NULL){
           x2<-qsm[j, "start_1"]
           y2<-qsm[j, "start_2"]
           z2<-qsm[j, "start_3"]
+          radius1<-qsm[qsm[j,"parent"], "radius"]
+          radius2<-qsm[j, "radius"]
 
           table[s,1:15]<-c(1, branch, dbase, cumdbase, order, bran, apic, x1, y1, z1, x2, y2, z2, length, cumsum)
           table[s,17]<-parentbranch
+          table[s,18]<-radius1
+          table[s,19]<-radius2
+          table[s,20]<-(1/3)*pi*length*(radius1^2+radius1*radius2+radius2^2)
+          table[s,21]<-pi*(radius1+radius2)*sqrt((radius1-radius2)^2+length^2)
           }}
   
   table[,16]<-table[,4]+table[,15] #geodesic distance
   index<-which(is.na(table[,1])==TRUE)
   table<-table[-index,-c(3,4)] #Remove lines and columns
   
+  #1 is file
+  #2 is branch
+  #3 is order
+  #4 is bran
+  #5 is apic
+  #6 is x1
+  #7 is y1
+  #8 is z1
+  #9 is x2
+  #10 is y2
+  #11 is z2
+  #12 is length
+  #13 is blength
+  #14 is geodesic
+  #15 is parentbranch
+  #16 is radius 1
+  #17 is radius 2
+  #18 is volume
+  #19 is surface area
+  
   table<-as.data.frame(table)
-  colnames(table)<-c("file","branch","order","bran","apic","x1","y1","z1","x2","y2","z2","length","blength","geodesic","parentbranch")
+  colnames(table)<-c("file","branch","order","bran","apic","x1","y1","z1","x2","y2","z2","length","blength","geodesic","parentbranch","radius1","radius2","volume","surface")
   table$file<-name
   table$bran[table$bran==1]<-"true"
   table$bran[table$bran==0]<-"false"
   table$apic[table$apic==1]<-"true"
   table$apic[table$apic==0]<-"false"
-  table<-table[,c(1,2,15,3:14)]
+  table<-table[,c(1,2,15,3:14,16:19)]
   
   #Remove segments with length=0
   

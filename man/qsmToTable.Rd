@@ -42,6 +42,14 @@ Returns a qsmToTable object. Each line of the data frame gives the attributes of
 \bold{blength}: the cumulative length measured along each branch.
 
 \bold{geodesic}: the geodesic distance measured along the branches.
+
+\bold{radius1}: the radius of the node starting the segment.
+
+\bold{radius2}: the radius of the node ending the segment.
+
+\bold{volume}: the volume of the segment.
+
+\bold{radius2}: the lateral surface area of the segment.
 }
 \author{Benjamin M. Delory
 }
